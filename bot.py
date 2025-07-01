@@ -19,16 +19,32 @@ async def start(client, message):
    # await load_batches()
     await message.reply_text("👋 Welcome to the KGS Batch Extractor Bot!\nSend a keyword to search for batches.")
 
+#@bot.on_message(filters.private & filters.text & ~filters.command(["start", "extract"]))
 @bot.on_message(filters.private & filters.text & ~filters.command(["start", "extract"]))
-async def search_batch(client, message):
-    query = message.text.strip()
-    matches = search_batches(query)
+async def handle_text(client, message):
+    text = message.text.strip()
+
+    # 👉 User has a search session and sends a number (index)
+    if text.isdigit() and isinstance(user_sessions.get(message.chat.id), list):
+        index = int(text)
+        session = user_sessions[message.chat.id]
+        if 0 <= index < len(session):
+            batch_id, batch_name = session[index]
+            user_sessions[message.chat.id] = {"id": batch_id, "name": batch_name}
+            summary_text = await extract_batch_summary(batch_id, batch_name)
+            await message.reply_text(summary_text + "\n\nSend /extract to generate the file.")
+        else:
+            await message.reply_text("❌ Invalid index.")
+        return
+
+    # 👉 Otherwise, treat it as a search query
+    matches = search_batches(text)
     if not matches:
         await message.reply_text("❌ No matching batches found.")
         return
 
     session = []
-    lines = [f"🔍 Found {len(matches)} results for \"{query}\":\n"]
+    lines = [f"🔍 Found {len(matches)} results for \"{text}\":\n"]
     for i, (bid, name) in enumerate(matches):
         lines.append(f"{i}. {name} [ID: {bid}]")
         session.append((bid, name))
@@ -46,6 +62,7 @@ async def search_batch(client, message):
     if chunk:
         chunk += "\nSend the index (e.g. 0 or 1) to select."
         await message.reply_text(chunk)
+
 
 @bot.on_message(filters.private & filters.text & filters.regex("^\d+$"))
 async def select_batch(client, message):
