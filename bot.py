@@ -16,7 +16,7 @@ user_sessions = {}
 
 @bot.on_message(filters.private & filters.command("start"))
 async def start(client, message):
-    await load_batches()
+   # await load_batches()
     await message.reply_text("👋 Welcome to the KGS Batch Extractor Bot!\nSend a keyword to search for batches.")
 
 @bot.on_message(filters.private & filters.text & ~filters.command(["start", "extract"]))
@@ -78,6 +78,7 @@ async def extract_command(client, message):
     os.remove(file_path)
 
 if __name__ == "__main__":
+    asyncio.run(load_batches())
     print("🚀 Bot running...")
     bot.run()
 
