@@ -51,11 +51,13 @@ async def search_batch(client, message):
 async def select_batch(client, message):
     index = int(message.text.strip())
     session = user_sessions.get(message.chat.id)
-    if not session or index >= len(session):
+
+    if not session or not isinstance(session, list) or index >= len(session):
         await message.reply_text("❌ Invalid selection.")
         return
 
     batch_id, batch_name = session[index]
+    # Save selected batch as dict now for later /extract
     user_sessions[message.chat.id] = {"id": batch_id, "name": batch_name}
 
     summary_text = await extract_batch_summary(batch_id, batch_name)
