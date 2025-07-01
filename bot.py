@@ -78,7 +78,7 @@ async def extract_command(client, message):
     os.remove(file_path)
 
 if __name__ == "__main__":
-    asyncio.run(load_batches())
+    load_batches()
     print("🚀 Bot running...")
     bot.run()
 
