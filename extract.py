@@ -22,20 +22,27 @@ def search_batches(term: str):
     return [(bid, name) for bid, name in all_batches.items() if term.lower() in name.lower()]
 
 async def classroom(batch_id):
+    url = f"{API}/classroom/{batch_id}"
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " 
-                      "AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/114.0.0.0 Safari/537.36",
-        "Accept": "application/json",
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/124.0.0.0 Safari/537.36"
+        ),
+        "Accept": "*/*",
         "Accept-Language": "en-US,en;q=0.9",
-        "Referer": f"{API}/classroom/{batch_id}",
+        "Referer": f"https://khan-sir-free-class.onrender.com/classroom.html?batch_id={batch_id}",
+        "Origin": "https://khan-sir-free-class.onrender.com",
+        "Connection": "keep-alive",
+        "Cookie": "_ga=GA1.1.341728246.1751297513; _ga_NL1TBD5YXB=GS2.1.s1751360383$o3$g1$t1751360425$j18$l0$h0"
     }
 
-    async with httpx.AsyncClient(headers=headers) as client:
+    async with httpx.AsyncClient(headers=headers, follow_redirects=True, timeout=15) as client:
         try:
-            resp = await client.get(f"{API}/classroom/{batch_id}")
+            resp = await client.get(url)
             resp.raise_for_status()
-            classes = resp.json().get("classroom", [])
+            data = resp.json()
+            classes = data.get("classroom", [])
             return [{
                 "id": cls.get("id"),
                 "name": cls.get("name"),
@@ -43,8 +50,12 @@ async def classroom(batch_id):
                 "videos": cls.get("videos", 0)
             } for cls in classes]
         except httpx.HTTPStatusError as e:
-            print(f"❌ Failed to fetch classroom for batch {batch_id}: {e.response.status_code}")
+            print(f"❌ 403 Error: {e.response.status_code} {e.response.text[:200]}")
             return []
+        except Exception as e:
+            print(f"❌ Unexpected error: {e}")
+            return []
+
 
 
 async def get_latest_update(batch_id):
