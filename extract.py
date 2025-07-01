@@ -17,6 +17,8 @@ async def load_batches():
     all_batches = {b["id"]: b["title"] for b in data}
 
 def search_batches(term: str):
+    print(f"🔍 Searching for: {term}")
+    print(f"📦 Available batches: {list(all_batches.values())[:5]} ...")
     return [(bid, name) for bid, name in all_batches.items() if term.lower() in name.lower()]
 
 async def classroom(batch_id):
