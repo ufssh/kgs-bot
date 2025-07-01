@@ -13,12 +13,13 @@ bot = Client("kgs_bot", bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH)
 
 # In-memory session cache
 user_sessions = {}
+await load_batches()
 
 @bot.on_message(filters.private & filters.text & ~filters.command(["start", "extract"]))
 #async def search_batch(client, message):
 async def start(client, message):
     try:
-        await load_batches()
+        
         await message.reply_text("👋 Welcome to the KGS Batch Extractor Bot!\nSend a keyword to search for batches.")
     except Exception as e:
         await message.reply_text(f"❌ Failed to load batches.\nError: {e}")
