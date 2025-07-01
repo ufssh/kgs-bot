@@ -22,16 +22,30 @@ def search_batches(term: str):
     return [(bid, name) for bid, name in all_batches.items() if term.lower() in name.lower()]
 
 async def classroom(batch_id):
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(f"{API}/classroom/{batch_id}")
-        resp.raise_for_status()
-        classes = resp.json().get("classroom", [])
-        return [{
-            "id": cls.get("id"),
-            "name": cls.get("name"),
-            "notes": cls.get("notes", 0),
-            "videos": cls.get("videos", 0)
-        } for cls in classes]
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " 
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/114.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": f"{API}/classroom/{batch_id}",
+    }
+
+    async with httpx.AsyncClient(headers=headers) as client:
+        try:
+            resp = await client.get(f"{API}/classroom/{batch_id}")
+            resp.raise_for_status()
+            classes = resp.json().get("classroom", [])
+            return [{
+                "id": cls.get("id"),
+                "name": cls.get("name"),
+                "notes": cls.get("notes", 0),
+                "videos": cls.get("videos", 0)
+            } for cls in classes]
+        except httpx.HTTPStatusError as e:
+            print(f"❌ Failed to fetch classroom for batch {batch_id}: {e.response.status_code}")
+            return []
+
 
 async def get_latest_update(batch_id):
     # From the batch list JSON, get 'updated_at' or similar field
