@@ -10,7 +10,7 @@ BATCH_FILE = "New_Sunny.json"
 
 all_batches = {}
 
-async def load_batches():
+def load_batches():
     global all_batches
     with open(BATCH_FILE, "r", encoding="utf-8") as f:
         data = json.load(f)
