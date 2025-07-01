@@ -5,7 +5,7 @@ import os
 from pyrogram import Client, filters
 from extract import load_batches, search_batches, extract_batch_summary, extract_full_batch
 
-BOT_TOKEN = os.getenv("BOT_TOKEN") or "YOUR_BOT_TOKEN"
+BOT_TOKEN = os.getenv("BOT_TOKEN") or "7398473332:AAEuhO273fwXhuqxdzCcmmiOlkQgXSlmw_k"
 API_ID = int(os.getenv("API_ID") or 15964777)  # Replace with your API ID
 API_HASH = os.getenv("API_HASH") or "ef448f85b780cdf26f8ffe390a5d8262"
 
